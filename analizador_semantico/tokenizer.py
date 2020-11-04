@@ -1,4 +1,5 @@
 import re
+
 def tokenizer(linea: str):
     expresiones_regulares = [
         (re.compile(r"(if|while|return)"), "palabras_reservada"),
