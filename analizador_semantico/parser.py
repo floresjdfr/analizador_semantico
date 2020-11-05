@@ -13,7 +13,7 @@ es_funcion = False
 es_condicional = False
 
 
-elementos = []
+elementos = [] 
 
 ambito_actual = Nodo(None, "global")
 
@@ -42,6 +42,8 @@ def check_token(token):
                                                                         #nuevo_elemento quede de la siguiente manera al usar el join = ' int x = 40'. Osea con espacion en blanco en medio
                 ambito_actual.agregarHijo(nuevo_elemento)
                 elementos.clear()
+
+                elementos.append(token)
             elif es_funcion:
                 if len(elementos) > 0:
                     nuevo_elemento = ''.join(' '.join(i) for i in elementos)
@@ -58,13 +60,13 @@ def check_token(token):
             if token == value:
                 tipo_parentesis = key
         if tipo_parentesis == 'abre':
-            es_funcion = True
-            nuevo_elemento = ''.join(' '.join(i) for i in elementos)
-            nuevo_ambito = Nodo(ambito_actual, nuevo_elemento)
-            ambito_actual.agregarHijo(nuevo_ambito)
-            ambito_actual = nuevo_ambito
-            elementos.clear()
-
+            if not es_condicional:
+                es_funcion = True
+                nuevo_elemento = ''.join(' '.join(i) for i in elementos)
+                nuevo_ambito = Nodo(ambito_actual, nuevo_elemento)
+                ambito_actual.agregarHijo(nuevo_ambito)
+                ambito_actual = nuevo_ambito
+                elementos.clear()
         elif tipo_parentesis == 'cierra': #si el parentesis cierra no pasa nada
             pass
 
