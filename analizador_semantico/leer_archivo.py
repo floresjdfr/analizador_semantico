@@ -6,5 +6,6 @@ def leer_archivo(nombre_archivo):
     for linea in archivo.readlines():
         lista = tokenizer.tokenize(linea)
         print(lista)
+        print()
 
-leer_archivo("codigo1.txt")
+leer_archivo("codigo2.txt")

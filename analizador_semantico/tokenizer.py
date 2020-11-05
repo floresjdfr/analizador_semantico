@@ -9,8 +9,9 @@ def tokenize(linea: str):
         (re.compile(r"^[0-9]+.[0-9]+"), "float"),
         (re.compile(r"^[0-9]+"), "int"),
         (re.compile(r"^[+*/-]"), "operador_aritmetico"),
-        (re.compile(r"^[><=]"), "operador_logico"),
+        (re.compile(r"^[><==]"), "operador_logico"),
         (re.compile(r"^="), "asignacion"),
+        (re.compile(r"^,"), "coma"),
         (re.compile(r"^[()]"), "parentesis"),
         (re.compile(r"^[{}]"), "llave"),
     ]
