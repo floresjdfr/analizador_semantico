@@ -38,7 +38,8 @@ def check_token(token):
     if token in reservadas: #si el token es una palabra reservada indica una nueva declaracion de variable o funcion
         if len(elementos) > 0: 
             if not es_funcion:
-                nuevo_elemento = ''.join(' '.join(i) for i in elementos)
+                nuevo_elemento = ''.join(' '.join(i) for i in elementos) #la idea es que si se tiene una lista de elementos ['int','x','=','40']
+                                                                        #nuevo_elemento quede de la siguiente manera al usar el join = ' int x = 40'. Osea con espacion en blanco en medio
                 ambito_actual.agregarHijo(nuevo_elemento)
                 elementos.clear()
             elif es_funcion:
@@ -58,7 +59,7 @@ def check_token(token):
                 tipo_parentesis = key
         if tipo_parentesis == 'abre':
             es_funcion = True
-            nuevo_elemento = ''.join(elementos)
+            nuevo_elemento = ''.join(' '.join(i) for i in elementos)
             nuevo_ambito = Nodo(ambito_actual, nuevo_elemento)
             ambito_actual.agregarHijo(nuevo_ambito)
             ambito_actual = nuevo_ambito
@@ -77,7 +78,7 @@ def check_token(token):
             pass
         if tipo_llave == 'cierra': # si la llave cierra se vuelve al ambito anterior
             if len(elementos) > 0:
-                nuevo_elemento = ''.join(elementos)
+                nuevo_elemento = ''.join(' '.join(i) for i in elementos)
                 ambito_actual.agregarHijo(nuevo_elemento)
                 elementos.clear()
                 ambito_actual = ambito_actual.obtener_padre()
@@ -93,7 +94,7 @@ def check_token(token):
 
     elif token in condicionales: #si el token es algun condicional, este condicional seria un nuevo ambito para las variables declaradas dentro de este
         if len(elementos) > 0:#si por alguna razon la lista de elementos no esta vacia, agrego los elementos como hijo del ambito actual
-                nuevo_elemento = ''.join(elementos)
+                nuevo_elemento = ''.join(' '.join(i) for i in elementos)
                 ambito_actual.agregarHijo(nuevo_elemento)
                 elementos.clear()
 
@@ -111,12 +112,6 @@ def check_token(token):
 
     else:
         elementos.append(token)
-        
-                
-def check_funcion(lista_elementos):
-    if '{' in lista_elementos:
-        return True
-    return False
 
 
 
