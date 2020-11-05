@@ -106,6 +106,7 @@ def check_token(token):
                 ambito_actual.agregarHijo(nuevo_ambito)
                 ambito_actual = nuevo_ambito
         else:
+            es_condicional = True
             nuevo_elemento = token + "_condicional"
                 
             nuevo_ambito = Nodo(ambito_actual, nuevo_elemento)
