@@ -8,7 +8,7 @@ class Nodo:
         return True if len(self._hijos) > 0 else False
     
     def agregarHijo(self, nuevo_elemento):
-        self._hijo.append(Nodo(self, nuevo_elemento))
+        self._hijos.append(Nodo(self, nuevo_elemento))
     
     def obtener_valor(self):
         return self._valor
