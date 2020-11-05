@@ -1,6 +1,6 @@
 import re
 
-def tokenizer(linea: str):
+def tokenize(linea: str):
     expresiones_regulares = [
         (re.compile(r"(if|while|return)"), "palabras_reservada"),
         (re.compile(r"(void|int|float|string)"), "tipo_dato"),
