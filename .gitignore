@@ -1,3 +1,2 @@
-
-analizador_semantico/.vscode/
-analizador_semantico/__pycache__/
+analizador_semantico/.vscode/**
+analizador_semantico/__pycache__/**
