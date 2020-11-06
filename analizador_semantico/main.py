@@ -1,16 +1,17 @@
-import parser
-import tabla_simbolos
-
+from parsing import Parsing
+from tokenizer import tokenize
 
 if __name__ == '__main__':
 
     archivo = open("codigo1.txt", 'r')
 
-    par1 = parser()
+    pars = Parsing()
 
-    ban = True
+    contador_linea = 1
     for linea in archivo.readlines():
-        if ban:
-            print(par1.parse1(linea))
-            ban = False
-        print(linea)
+        linea_tokenized = tokenize(linea)
+        pars.parse(linea_tokenized, contador_linea)
+        contador_linea += 1
+    
+    pars.imprimir_tabla()
+        

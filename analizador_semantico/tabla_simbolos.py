@@ -1,7 +1,7 @@
 class TablaSimbolos:
 
     def __init__(self):
-        self.simbolos = dict()
+        self.simbolos = {}
     
     def agregar_simbolo(self, llave, valor):
 
@@ -18,3 +18,7 @@ class TablaSimbolos:
                 return self.simbolos[key]
         
         raise Exception("Symbol not defined")
+
+    def imprimir(self):
+        for key, value in self.simbolos.items():
+            print(key, ' : ', value)

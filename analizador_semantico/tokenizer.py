@@ -9,7 +9,7 @@ def tokenize(linea: str):
         (re.compile(r"^[0-9]+.[0-9]+"), "float"),
         (re.compile(r"^[0-9]+"), "int"),
         (re.compile(r"^[+*/-]"), "operador_aritmetico"),
-        (re.compile(r"^[><==]"), "operador_logico"),
+        (re.compile(r"^[><]|=="), "operador_logico"),
         (re.compile(r"^="), "asignacion"),
         (re.compile(r"^,"), "coma"),
         (re.compile(r"^[()]"), "parentesis"),
@@ -29,7 +29,7 @@ def tokenize(linea: str):
                 matched = True
                 token = (objeto_encontrado.group(0), tipo)
                 tokens.append(token)
-                linea = linea.replace(token[0], '')
+                linea = linea.replace(token[0], '', 1)
                 linea = linea.lstrip()
                 break  
         if not matched:
