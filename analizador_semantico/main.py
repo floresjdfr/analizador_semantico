@@ -3,7 +3,7 @@ from tokenizer import tokenize
 
 if __name__ == '__main__':
 
-    archivo = open("codigo1.txt", 'r')
+    archivo = open("codigo2.txt", 'r')
 
     pars = Parsing()
 

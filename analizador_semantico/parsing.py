@@ -8,19 +8,20 @@ class Parsing():
         self._tabla_simbolos = TablaSimbolos()
   
     def parse(self, tokens, linea):
-        resultado = self._analizador_elementos(tokens)
-        if resultado == 'DECLARACION_VARIABLE':
-            self._declaracion_variable(tokens, linea)
+        if tokens:
+            resultado = self._analizador_elementos(tokens)
+            if resultado == 'DECLARACION_VARIABLE':
+                self._declaracion_variable(tokens, linea)
 
-        elif resultado == 'FUNCION':
-            self._funcion(tokens, linea)
+            elif resultado == 'FUNCION':
+                self._funcion(tokens, linea)
 
-        elif resultado == "CIERRE_AMBITO":
-            self._pila.get()
+            elif resultado == "CIERRE_AMBITO":
+                self._pila.get()
 
-        elif resultado == 'CONDICIONAL':
-            ambito = 'condicional_' + tokens[0][0]
-            self._pila.put(ambito)
+            elif resultado == 'CONDICIONAL':
+                ambito = 'condicional_' + tokens[0][0]
+                self._pila.put(ambito)
 
     def imprimir_tabla(self):
         self._tabla_simbolos.imprimir()

@@ -5,7 +5,7 @@ def tokenize(linea: str):
         (re.compile(r"(if|while|return)"), "palabra_reservada"),
         (re.compile(r"(void|int|float|string)"), "tipo"),
         (re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*"), "identificador"),
-        (re.compile(r'"[a-zA-Z_][a-zA-Z0-9_]*"'), "string"),
+        (re.compile(r'"[a-zA-Z0-9_]*"'), "string"),
         (re.compile(r"^[0-9]+.[0-9]+"), "float"),
         (re.compile(r"^[0-9]+"), "int"),
         (re.compile(r"^[+*/-]"), "operador_aritmetico"),
