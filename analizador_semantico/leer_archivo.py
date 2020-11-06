@@ -10,4 +10,4 @@ def leer_archivo(nombre_archivo):
     return lista
     
 
-leer_archivo("codigo2.txt")
+leer_archivo("codigo1.txt")

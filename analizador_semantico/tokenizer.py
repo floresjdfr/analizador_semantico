@@ -3,8 +3,8 @@ import re
 def tokenize(linea: str):
     expresiones_regulares = [
         (re.compile(r"(if|while|return)"), "palabra_reservada"),
-        (re.compile(r"(void|int|float|string)"), "tipo_dato"),
-        (re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*"), "variable"),
+        (re.compile(r"(void|int|float|string)"), "tipo"),
+        (re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*"), "identificador"),
         (re.compile(r'"[a-zA-Z_][a-zA-Z0-9_]*"'), "string"),
         (re.compile(r"^[0-9]+.[0-9]+"), "float"),
         (re.compile(r"^[0-9]+"), "int"),
@@ -31,9 +31,7 @@ def tokenize(linea: str):
                 tokens.append(token)
                 linea = linea.replace(token[0], '')
                 linea = linea.lstrip()
-                break  # break out of the inner loop
-
+                break  
         if not matched:
-            raise Exception("Invalid String " + linea)
-
+            return
     return tokens
