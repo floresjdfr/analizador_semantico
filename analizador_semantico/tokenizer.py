@@ -2,7 +2,8 @@ import re
 
 def tokenize(linea: str):
     expresiones_regulares = [
-        (re.compile(r"(if|while|return)"), "palabra_reservada"),
+        (re.compile(r"(if|while)"), "condicicional"),
+        (re.compile(r"(return)"), 'return'),
         (re.compile(r"(void|int|float|string)"), "tipo"),
         (re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*"), "identificador"),
         (re.compile(r'"[a-zA-Z0-9_]*"'), "string"),

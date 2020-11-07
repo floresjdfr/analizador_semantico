@@ -10,20 +10,24 @@ class Parsing():
     def parse(self, tokens, linea):
         if tokens:
             resultado = self._analizador_elementos(tokens)
+                #[('return', 'return'),(x, identificador)]
+                #[('return', 'return'),(3, int)]
+                #[('return', 'return')]
+            if resultado == 'RETURN':
+                self._return(tokens, linea)
+
             if resultado == 'DECLARACION_VARIABLE':
                 self._declaracion_variable(tokens, linea)
 
             elif resultado == 'FUNCION':
                 self._funcion(tokens, linea)
 
-            elif resultado == "CIERRE_AMBITO":
+            elif resultado == "CIERRA_AMBITO":
                 self._pila.get()
 
             elif resultado == 'CONDICIONAL':
                 ambito = 'condicional_' + tokens[0][0]
                 self._pila.put(ambito)
-
-    
 
     def imprimir_tabla(self):
         self._tabla_simbolos.imprimir()
@@ -36,8 +40,11 @@ class Parsing():
         llaves_abre = False
         llaves_cierra = False
         palabra_tipo = False
+        _return = False
 
         for token in tokens:
+            if token[1] == 'return':
+                _return = True 
             if token[1] == 'tipo':
                 palabra_tipo = True
             if token[1] == 'asignacion':
@@ -52,10 +59,11 @@ class Parsing():
                     llaves_abre = True
                 else:
                     llaves_cierra = True
-            if token[1] == 'palabra_reservada':
+            if token[1] == 'condicicional':
                 condicional = True
-
-        if operador_asignacion and not parentesis_abre and palabra_tipo:
+        if _return:
+            return 'RETURN'
+        elif operador_asignacion and not parentesis_abre and palabra_tipo:
             return 'DECLARACION_VARIABLE'
         elif parentesis_abre and operador_asignacion and palabra_tipo:
             return 'FUNCION'
@@ -66,7 +74,7 @@ class Parsing():
         elif operador_asignacion and not palabra_tipo and not condicional:
             return 'ASIGNACION'
         elif llaves_cierra:
-            return 'CIERRA_AMBITO   '
+            return 'CIERRA_AMBITO'
         else:
             return 'NONE'
 
@@ -81,6 +89,36 @@ class Parsing():
         valor = {'tipo':tipo, 'valor':valor, 'linea':linea, 'ambito':ambito}
         self._tabla_simbolos.agregar_simbolo(identificador, valor)
 
+    def _return(self, tokens, linea):
+        if len(tokens) > 1:
+            elemento_retornado =  tokens[1]
+            if elemento_retornado[1] == 'identificador':
+                elemento_en_tabla = self._tabla_simbolos.buscar_simbolo(elemento_retornado[0])
+                if elemento_en_tabla:
+                    ambito = self._pila.get()
+                    self._pila.put(ambito)
+                    funcion = self._tabla_simbolos.buscar_simbolo(ambito)
+                    if not elemento_en_tabla['tipo'] == funcion['tipo']:
+                        salida = "Error - linea: {}. Valor de retorno no coincide con la declaracion de '{}'.".format(linea, ambito)
+                        print(salida)
+                else:
+                    salida = "Error - linea: {}. '{}' no esta declarado.".format(linea, elemento_retornado[0])
+                    print(salida)
+            else:
+                ambito = self._pila.get()
+                self._pila.put(ambito)
+                funcion = self._tabla_simbolos.buscar_simbolo(ambito)
+                if not elemento_retornado[1] == funcion['tipo']:
+                    salida = "Error - linea: {}. Valor de retorno no coincide con la declaracion de '{}'.".format(linea, ambito)
+                    print(salida)
+        else:
+            ambito = self._pila.get()
+            self._pila.put(ambito)
+            funcion = self._tabla_simbolos.buscar_simbolo(ambito)
+            if not funcion['tipo'] == 'void':
+                salida = "Error - linea: {}. Valor de retorno no coincide con la declaracion de '{}'.".format(linea, ambito)
+                print(salida)
+    
     def _funcion(self, tokens, linea):
         tipo = tokens[0][0]
         identificador = tokens[1][0]
@@ -89,7 +127,7 @@ class Parsing():
         valor = {'tipo':tipo, 'valor':None, 'linea':linea, 'ambito':ambito}
         self._tabla_simbolos.agregar_simbolo(identificador, valor)
         
-        ambito = tipo + " " + identificador
+        ambito = identificador
         self._pila.put(ambito)
 
         parametros = self._extraer_parametros(tokens)
