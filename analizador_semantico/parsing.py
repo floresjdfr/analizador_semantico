@@ -23,6 +23,8 @@ class Parsing():
                 ambito = 'condicional_' + tokens[0][0]
                 self._pila.put(ambito)
 
+    
+
     def imprimir_tabla(self):
         self._tabla_simbolos.imprimir()
 
@@ -121,3 +123,5 @@ class Parsing():
                 parametro_auxiliar.append(linea[i][0]) #se agrega al parameto_auxiliar
         return lista_parametros
     
+    def obtenerTabla(self):
+        return self._tabla_simbolos
