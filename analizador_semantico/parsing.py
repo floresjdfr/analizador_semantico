@@ -2,6 +2,10 @@ from tabla_simbolos import TablaSimbolos
 import queue
 
 class Parsing():
+
+    '''
+    Esta clase se encarga de utilizar una tabla de simbolos para clasificar los tokens recibidos
+    '''
     def __init__(self):
         self._pila = queue.LifoQueue()
         self._pila.put("global")
@@ -10,9 +14,6 @@ class Parsing():
     def parse(self, tokens, linea):
         if tokens:
             resultado = self._analizador_elementos(tokens)
-                #[('return', 'return'),(x, identificador)]
-                #[('return', 'return'),(3, int)]
-                #[('return', 'return')]
             if resultado == 'RETURN':
                 self._return(tokens, linea)
 
@@ -33,6 +34,9 @@ class Parsing():
         self._tabla_simbolos.imprimir()
 
     def _analizador_elementos(self, tokens):
+        '''
+        Utiliza varias banderas para poder identificar el tipo de linea de codigo leida (recivida por parametro en forma de token)
+        '''
         operador_asignacion = False
         condicional = False
         parentesis_abre = False
@@ -145,6 +149,10 @@ class Parsing():
             self._tabla_simbolos.agregar_simbolo(identificador, valor)
 
     def _extraer_parametros(self, linea):
+
+        '''
+        Utilizado para extraer los parametros que se encuentran entre parentesis en una funcion
+        '''
         lista_parametros = [] #se guardan los parametros de la linea de tokens
         parametro_auxiliar = []
 

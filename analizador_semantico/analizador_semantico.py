@@ -4,6 +4,11 @@ import queue
 import re
 
 class AnalisadorSemantico:
+
+    '''
+    Clase principal encargada de llevar a cabo el parsing y ademas analizar la semantica de la declaraciones de 
+    funciones, varibales, condicionales, entre otras.
+    '''
     def __init__(self, nombre_archivo):
         self._parsing = Parsing()
         self._lista_tokens = []
@@ -114,7 +119,6 @@ class AnalisadorSemantico:
                             if not encontrado:
                                 print('Error')
                         '''
-
 
     def _extraer_asignaciones(self, linea_token):
 
