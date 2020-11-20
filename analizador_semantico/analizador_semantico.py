@@ -12,6 +12,7 @@ class AnalisadorSemantico:
     def __init__(self, nombre_archivo):
         self._parsing = Parsing()
         self._lista_tokens = []
+        self.lista_errores = []
         self._tokenize(nombre_archivo)
     
     def _tokenize(self, _nombre_archivo):
@@ -27,12 +28,15 @@ class AnalisadorSemantico:
         tabla = self._parsing.obtenerTabla()
         self._analisis_semantico_declaraciones(tabla)
         self._analisis_semantico_identificadores(tabla)
+        self._mostrar_errores()
     
     def parse(self):
         for i in self._lista_tokens:
             linea = i['linea']
             tokens = i['tokens']
-            self._parsing.parse(tokens, linea)
+            error = self._parsing.parse(tokens, linea)
+            if(error != ""):
+                self.lista_errores.append(error)
     
     def analisis_semantico_declaraciones(self, tabla): 
         self._analisis_semantico_declaraciones(tabla)
@@ -57,15 +61,18 @@ class AnalisadorSemantico:
                                 if valor:
                                     if not valor['tipo'] == llave['tipo']: #si la variable esta en la tabla se verifica que sea del mismo tipo
                                         salida = "Error - linea: {}. Asignacion de tipo '{}' incorrecta.".format(tokens['linea'], valor['tipo'])
-                                        print(salida)
+                                        self.lista_errores.append(salida)
+                                        #print(salida)
                             else: #si no es una variable es un tipo dato primitivo
                                 tipo_valor = self._tipo_dato_checker(llave['tipo'], asignacion[0])
                                 if not tipo_valor:
                                     salida = "Error - linea: {}. Asignacion de tipo '{}' incorrecta.".format(tokens['linea'], llave['tipo'])
-                                    print(salida)
+                                    self.lista_errores.append(salida)
+                                    #print(salida)
                     else:
                         salida = "Error - linea: {}. '{}' no esta declarado.".format(tokens['linea'], tokens['tokens'][0][0])
-                        print(salida)
+                        self.lista_errores.append(salida)
+                        #print(salida)
                 elif resultado == 'CONDICIONAL':
                     lista_asignaciones = self._extraer_asignaciones(tokens['tokens'])
                     if len(lista_asignaciones) > 1: #caso en que hayan dos elementos comparados
@@ -75,10 +82,12 @@ class AnalisadorSemantico:
                             if not elemento1 or not elemento2:
                                 if not elemento1:
                                     salida = "Error - linea: {}. '{}' no esta declarado.".format(tokens['linea'], lista_asignaciones[0][0])
-                                    print(salida)
+                                    self.lista_errores.append(salida)
+                                    #print(salida)
                                 else:
                                     salida = "Error - linea: {}. '{}' no esta declarado.".format(tokens['linea'], lista_asignaciones[1][0])
-                                    print(salida)
+                                    self.lista_errores.append(salida)
+                                    #print(salida)
                         elif lista_asignaciones[0][1] == 'identificador' or lista_asignaciones[1][1] == 'identificador': #caso de que solo haya una variable y el otro sea algun tipo de dato primitivo
                             elemento1 = lista_asignaciones[0]
                             elemento2 = lista_asignaciones[1]
@@ -87,31 +96,37 @@ class AnalisadorSemantico:
                                 if encontrado:
                                     if not elemento2[1] == encontrado['tipo']:
                                         salida = "Error - linea: {}. Comparacion de tipo '{}' incorrecta.".format(tokens['linea'], encontrado['tipo'])
-                                        print(salida)
+                                        self.lista_errores.append(salida)
+                                        #print(salida)
                                 else:
                                     salida = "Error - linea: {}. '{}' no esta declarado.".format(tokens['linea'], elemento1[0])
-                                    print(salida)
+                                    self.lista_errores.append(salida)
+                                    #print(salida)
                             else:
                                 encontrado = tabla.buscar_simbolo(elemento2[0])
                                 if encontrado:
                                     if not elemento1[1] == encontrado['tipo']:
                                         salida = "Error - linea: {}. Comparacion de tipo '{}' incorrecta.".format(tokens['linea'], encontrado['tipo'])
-                                        print(salida)
+                                        self.lista_errores.append(salida)
+                                        #print(salida)
                                 else:
                                     salida = "Error - linea: {}. '{}' no esta declarado.".format(tokens['linea'], elemento2[0])
-                                    print(salida)
+                                    self.lista_errores.append(salida)
+                                    #print(salida)
                         else:
                             elemento1 = lista_asignaciones[0]
                             elemento2 = lista_asignaciones[1]
                             if not elemento1[1] == elemento2[2]:#caso de que los datos primitivos no sean del mismo tipo
                                 salida = "Error - linea: {}. Comparacion de tipo '{}' incorrecta.".format(tokens['linea'], elemento1[1])
-                                print(salida)
+                                self.lista_errores.append(salida)
+                                #print(salida)
                     else: #en caso de que el condicional solo tenga un elemento dentro
                         if lista_asignaciones[0][1] == 'identificador':#caso de que ambos elementos sean variables
                             elemento1 = tabla.buscar_simbolo(lista_asignaciones[0][0])
                             if not elemento1:
                                 salida = "Error - linea: {}. '{}' no esta declarado.".format(tokens['linea'], lista_asignaciones[0][0])
-                                print(salida)
+                                self.lista_errores.append(salida)
+                                #print(salida)
                         '''
                         else: #puede ser innecesario
                             elemento1 = lista_asignaciones[0]
@@ -172,7 +187,8 @@ class AnalisadorSemantico:
             while not errores.empty():
                 value = errores.get()
                 salida = "Error - linea: {}. Asignacion de tipo '{}' incorrecta.".format(value['linea'], value['tipo'])
-                print(salida)
+                self.lista_errores.append(salida)
+                #print(salida)
     
     def _obtener_tabla(self):
         return self._parsing.obtenerTabla()
@@ -201,4 +217,13 @@ class AnalisadorSemantico:
         if objeto_encontrado:
             return True
         return False
+
+    def _mostrar_errores(self):
+        print()
+        if len(self.lista_errores) > 0:
+            for error in self.lista_errores:
+                print(error)
+        else:
+            print("El programa se encuentra libre de errores!")
+        print()
     

@@ -15,7 +15,7 @@ class Parsing():
         if tokens:
             resultado = self._analizador_elementos(tokens)
             if resultado == 'RETURN':
-                self._return(tokens, linea)
+                return self._return(tokens, linea)
 
             if resultado == 'DECLARACION_VARIABLE':
                 self._declaracion_variable(tokens, linea)
@@ -29,6 +29,7 @@ class Parsing():
             elif resultado == 'CONDICIONAL':
                 ambito = 'condicional_' + tokens[0][0]
                 self._pila.put(ambito)
+        return ""
 
     def imprimir_tabla(self):
         self._tabla_simbolos.imprimir()
@@ -104,7 +105,8 @@ class Parsing():
                     funcion = self._tabla_simbolos.buscar_simbolo(ambito)
                     if not elemento_en_tabla['tipo'] == funcion['tipo']:
                         salida = "Error - linea: {}. Valor de retorno no coincide con la declaracion de '{}'.".format(linea, ambito)
-                        print(salida)
+                        return salida
+                        #print(salida)
                 else:
                     salida = "Error - linea: {}. '{}' no esta declarado.".format(linea, elemento_retornado[0])
                     print(salida)
@@ -114,14 +116,17 @@ class Parsing():
                 funcion = self._tabla_simbolos.buscar_simbolo(ambito)
                 if not elemento_retornado[1] == funcion['tipo']:
                     salida = "Error - linea: {}. Valor de retorno no coincide con la declaracion de '{}'.".format(linea, ambito)
-                    print(salida)
+                    return salida
+                    #print(salida)
         else:
             ambito = self._pila.get()
             self._pila.put(ambito)
             funcion = self._tabla_simbolos.buscar_simbolo(ambito)
             if not funcion['tipo'] == 'void':
                 salida = "Error - linea: {}. Valor de retorno no coincide con la declaracion de '{}'.".format(linea, ambito)
-                print(salida)
+                return salida
+                #print(salida)
+        return ""
     
     def _funcion(self, tokens, linea):
         tipo = tokens[0][0]
