@@ -142,26 +142,20 @@ class Parsing():
             if elemento_retornado[1] == 'identificador':
                 elemento_en_tabla = self._tabla_simbolos.buscar_simbolo(elemento_retornado[0])
                 if elemento_en_tabla:
-                    #ambito = self._pila.get()
-                    #self._pila.put(ambito)
                     ambito = self.obtenerAmbitoUltimaFuncion()
                     funcion = self._tabla_simbolos.buscar_simbolo(ambito)
                     if not elemento_en_tabla['tipo'] == funcion['tipo']:
                         salida = "Error - linea: {}. Valor de retorno no coincide con la declaracion de '{}'.".format(linea, ambito)
                         return salida
-                        #print(salida)
                 else:
                     salida = "Error - linea: {}. '{}' no esta declarado.".format(linea, elemento_retornado[0])
                     print(salida)
             else:
-                #ambito = self._pila.get()
-                #self._pila.put(ambito)
                 ambito = self.obtenerAmbitoUltimaFuncion()
                 funcion = self._tabla_simbolos.buscar_simbolo(ambito)
                 if not elemento_retornado[1] == funcion['tipo']:
                     salida = "Error - linea: {}. Valor de retorno no coincide con la declaracion de '{}'.".format(linea, ambito)
                     return salida
-                    #print(salida)
         else:
             ambito = self._pila.get()
             self._pila.put(ambito)
@@ -169,7 +163,6 @@ class Parsing():
             if not funcion['tipo'] == 'void':
                 salida = "Error - linea: {}. Valor de retorno no coincide con la declaracion de '{}'.".format(linea, ambito)
                 return salida
-                #print(salida)
         return ""
     
     def _funcion(self, tokens, linea):
