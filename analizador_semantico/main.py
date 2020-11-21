@@ -6,6 +6,7 @@ if __name__ == '__main__':
     analizador = AnalisadorSemantico('correcto.txt')
     analizador.analizar()
 
+
     
         
     
