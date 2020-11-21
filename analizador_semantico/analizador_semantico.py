@@ -26,6 +26,7 @@ class AnalisadorSemantico:
     def analizar(self):
         self.parse()
         tabla = self._parsing.obtenerTabla()
+        tabla.imprimir()
         self._analisis_semantico_declaraciones(tabla)
         self._analisis_semantico_identificadores(tabla)
         self._mostrar_errores()
@@ -42,6 +43,9 @@ class AnalisadorSemantico:
         self._analisis_semantico_declaraciones(tabla)
         
     def _analisis_semantico_identificadores(self, tabla):
+        '''
+        Verifica que las variables se encuentren declaradas y su ambito sea el correspondiente
+        '''
         interes = {'int', 'string', 'float', 'identificador'}
         #x = y
         #(x, identificador), (=, asignacion), (y, identificador),(+, operador), (5, int)
@@ -51,7 +55,7 @@ class AnalisadorSemantico:
 
                 if resultado == 'ASIGNACION':
                     llave = tabla.buscar_simbolo(tokens['tokens'][0][0]) #verifica que la variable que esta a la izquierda del 
-                                                                #operador de asignacion este en la tabla
+                                                                        #operador de asignacion este en la tabla
                     if llave:
                         lista_asignaciones = self._extraer_asignaciones(tokens['tokens'])
                         #(y: identicador), (5, int)
@@ -73,6 +77,7 @@ class AnalisadorSemantico:
                         salida = "Error - linea: {}. '{}' no esta declarado.".format(tokens['linea'], tokens['tokens'][0][0])
                         self.lista_errores.append(salida)
                         #print(salida)
+                
                 elif resultado == 'CONDICIONAL':
                     lista_asignaciones = self._extraer_asignaciones(tokens['tokens'])
                     if len(lista_asignaciones) > 1: #caso en que hayan dos elementos comparados
@@ -134,7 +139,48 @@ class AnalisadorSemantico:
                             if not encontrado:
                                 print('Error')
                         '''
+                '''
+                elif resultado == 'ASIGNACION_FUNCION':
+                    tipos = {'string', 'int', 'float', 'void'}
+                    parametros = []
+                    if tokens[0][0] in tipos:
+                        parametros = self._extraer_parametros(tokens)
+                        if tokens[3][0] in tabla.obtener_tabla():
+                            if tokens[0][0] == tabla.obtenerTabla()[tokens[3][1]]:
+                                continue
+                            else:
+                                salida = "Error - linea: {}. Asignacion de tipo '{}' incorrecta.".format(value['linea'], value['tipo'])
+                                self.lista_errores.append(salida)
+                        else:
+                            salida = "Error - linea: {}. '{}' no esta declarado.".format(tokens['linea'], tokens[3][1])
+                            self.lista_errores.append(salida)
+                
+                '''
+    def _extraer_parametros(self, linea):
 
+        '''
+        Utilizado para extraer los parametros que se encuentran entre parentesis en una funcion
+        '''
+        lista_parametros = [] #se guardan los parametros de la linea de tokens
+        parametro_auxiliar = []
+        contador_parentesis = 0
+
+        for i in range(0, len(linea)+1): #recorre la linea de tokens
+            if linea[i][1] is 'parentesis': 
+                if contador_parentesis < 1:
+                    contador_parentesis += 1
+                else:#si el token vuelve a ser un parentesis significa que es el parentesis que cierra
+                    lista_parametros.append(parametro_auxiliar) #lo que este en parametro_auxiliar se agrega a la lista de parametros
+                    break
+            elif contador_parentesis > 0:
+                if linea[i][1] is 'coma': #si el token es una coma todo lo que este en el parametro_auxiliar se agrega a la lista de parametros
+                    if len(parametro_auxiliar) > 0:
+                        lista_parametros.append(parametro_auxiliar)
+                        parametro_auxiliar = []
+                elif linea[i][1] is not 'coma': #si el token actual no es una coma, es parte del parametro (tipo, identificador, =, valor)
+                    parametro_auxiliar.append(linea[i][0]) #se agrega al parameto_auxiliar
+        return lista_parametros
+    
     def _extraer_asignaciones(self, linea_token):
 
         #[(x, identificador), (=, asignacion),(y, identificador),(+, operador_aritmentico), (z, identificador),(-, operador-aritmentico), (5, int)]
@@ -143,6 +189,7 @@ class AnalisadorSemantico:
         for i in range(0, len(linea_token)):
             if linea_token[i][1] in interes:
                 lista_asignaciones.append(linea_token[i])
+            
         return lista_asignaciones
 
     def _analizador_elementos(self, tokens):
@@ -167,12 +214,18 @@ class AnalisadorSemantico:
 
         if  condicional and parentesis_abre:
             return 'CONDICIONAL'
+        elif operador_asignacion and parentesis_abre:
+            return 'ASIGNACION_FUNCION'
         elif operador_asignacion and not palabra_tipo:
             return 'ASIGNACION'
         else:
             return 'NONE'
     
     def _analisis_semantico_declaraciones(self, tabla):
+        '''
+        Verifica que las asignaciones sean del mismo tipo en las declaraciones
+        '''
+        
         errores = queue.Queue()
         
         for key, value in tabla.obtener_tabla().items():
@@ -182,7 +235,14 @@ class AnalisadorSemantico:
                 if self._tipo_dato_checker(tipo, valor):
                     continue
                 else:
-                    errores.put(value)
+                    if valor in tabla.obtener_tabla():
+                        elemento_tabla = tabla.obtener_tabla()[valor]
+                        if tipo == elemento_tabla['tipo']:
+                            continue
+                        else:
+                            errores.put(value)
+                    else:
+                        errores.put(value)
         if not errores.empty():
             while not errores.empty():
                 value = errores.get()

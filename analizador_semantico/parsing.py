@@ -17,7 +17,10 @@ class Parsing():
             if resultado == 'RETURN':
                 return self._return(tokens, linea)
 
-            if resultado == 'DECLARACION_VARIABLE':
+            elif resultado == 'ASIGNACION_FUNCION':
+                self._asignacion_funcion(tokens, linea)
+
+            elif resultado == 'DECLARACION_VARIABLE':
                 self._declaracion_variable(tokens, linea)
 
             elif resultado == 'FUNCION':
@@ -30,6 +33,38 @@ class Parsing():
                 ambito = 'condicional_' + tokens[0][0]
                 self._pila.put(ambito)
         return ""
+    
+    def _asignacion_funcion(self, tokens, linea):
+        #verifica si la variable ya estaba delcarada antes
+        
+        tipos = {'string', 'int', 'float', 'void'}
+        tipo = None
+        identificador = None
+        valor = None
+        ambito = self._pila.get()
+        self._pila.put(ambito)
+
+        if tokens[0][0] in tipos:#significa que la variable no estaba declarada
+            tipo = tokens[0][0]
+            identificador = tokens[1][0]
+        else: #la variable ya estaba declarada
+            tipo = tokens[0][0]
+            identificador = tokens[1][0]
+
+        valor_retorno_funcion = self._tabla_simbolos.obtener_tabla()
+        valor_retorno_funcion = valor_retorno_funcion[tokens[3][0]]['tipo']
+        
+        if valor_retorno_funcion == 'string':
+            valor = '"a"'
+        elif valor_retorno_funcion == 'int':
+            valor = 0
+        elif valor_retorno_funcion == 'float':
+            valor = 0.0
+        elif valor_retorno_funcion == 'void':
+            valor = None
+
+        valor = {'tipo':tipo, 'valor':valor, 'linea':linea, 'ambito':ambito}
+        self._tabla_simbolos.agregar_simbolo(identificador, valor)
 
     def imprimir_tabla(self):
         self._tabla_simbolos.imprimir()
@@ -70,6 +105,8 @@ class Parsing():
             return 'RETURN'
         elif operador_asignacion and not parentesis_abre and palabra_tipo:
             return 'DECLARACION_VARIABLE'
+        elif operador_asignacion and parentesis_abre and not condicional:
+            return 'ASIGNACION_FUNCION'
         elif parentesis_abre and operador_asignacion and palabra_tipo:
             return 'FUNCION'
         elif parentesis_abre and not condicional and palabra_tipo:
@@ -93,6 +130,12 @@ class Parsing():
         self._pila.put(ambito)
         valor = {'tipo':tipo, 'valor':valor, 'linea':linea, 'ambito':ambito}
         self._tabla_simbolos.agregar_simbolo(identificador, valor)
+    
+    def _declaracion_funcion(self, tokens, linea):
+        opciones_tipo = {'string', 'int', 'float', 'void'}
+        if tokens[0][0] in opciones_tipo:
+            pass
+    
 
     def _return(self, tokens, linea):
         if len(tokens) > 1:
@@ -100,8 +143,9 @@ class Parsing():
             if elemento_retornado[1] == 'identificador':
                 elemento_en_tabla = self._tabla_simbolos.buscar_simbolo(elemento_retornado[0])
                 if elemento_en_tabla:
-                    ambito = self._pila.get()
-                    self._pila.put(ambito)
+                    #ambito = self._pila.get()
+                    #self._pila.put(ambito)
+                    ambito = self.obtenerAmbitoUltimaFuncion()
                     funcion = self._tabla_simbolos.buscar_simbolo(ambito)
                     if not elemento_en_tabla['tipo'] == funcion['tipo']:
                         salida = "Error - linea: {}. Valor de retorno no coincide con la declaracion de '{}'.".format(linea, ambito)
@@ -111,8 +155,9 @@ class Parsing():
                     salida = "Error - linea: {}. '{}' no esta declarado.".format(linea, elemento_retornado[0])
                     print(salida)
             else:
-                ambito = self._pila.get()
-                self._pila.put(ambito)
+                #ambito = self._pila.get()
+                #self._pila.put(ambito)
+                ambito = self.obtenerAmbitoUltimaFuncion()
                 funcion = self._tabla_simbolos.buscar_simbolo(ambito)
                 if not elemento_retornado[1] == funcion['tipo']:
                     salida = "Error - linea: {}. Valor de retorno no coincide con la declaracion de '{}'.".format(linea, ambito)
@@ -160,19 +205,49 @@ class Parsing():
         '''
         lista_parametros = [] #se guardan los parametros de la linea de tokens
         parametro_auxiliar = []
+        contador_parentesis = 0
 
-        for i in range(3, len(linea)+1): #recorre la linea de tokens
-            if linea[i][1] is 'parentesis': #si el token vuelve a ser un parentesis significa que es el parentesis que cierra
-                if len(parametro_auxiliar) > 0:
+        for i in range(0, len(linea)+1): #recorre la linea de tokens
+            if linea[i][1] is 'parentesis': 
+                if contador_parentesis < 1:
+                    contador_parentesis += 1
+                else:#si el token vuelve a ser un parentesis significa que es el parentesis que cierra
                     lista_parametros.append(parametro_auxiliar) #lo que este en parametro_auxiliar se agrega a la lista de parametros
                     break
-            elif linea[i][1] is 'coma': #si el token es una coma todo lo que este en el parametro_auxiliar se agrega a la lista de parametros
-                if len(parametro_auxiliar) > 0:
-                    lista_parametros.append(parametro_auxiliar)
-                    parametro_auxiliar = []
-            elif linea[i][1] is not 'coma': #si el token actual no es una coma, es parte del parametro (tipo, identificador, =, valor)
-                parametro_auxiliar.append(linea[i][0]) #se agrega al parameto_auxiliar
+            elif contador_parentesis > 0:
+                if linea[i][1] is 'coma': #si el token es una coma todo lo que este en el parametro_auxiliar se agrega a la lista de parametros
+                    if len(parametro_auxiliar) > 0:
+                        lista_parametros.append(parametro_auxiliar)
+                        parametro_auxiliar = []
+                elif linea[i][1] is not 'coma': #si el token actual no es una coma, es parte del parametro (tipo, identificador, =, valor)
+                    parametro_auxiliar.append(linea[i][0]) #se agrega al parameto_auxiliar
         return lista_parametros
     
     def obtenerTabla(self):
         return self._tabla_simbolos
+    
+    def obtenerAmbitoUltimaFuncion(self):
+        '''
+        Como los ambitos pueden ser condicionales, esta funcion se encarga de buscar el ultimo ambito que 
+        no es un condicional
+        '''
+        ultima_funcion = None
+        cola_ambitos = queue.LifoQueue()
+        ambito_extraido = self._pila.get()
+        cola_ambitos.put(ambito_extraido)
+        
+        while 'condicional' in ambito_extraido:
+            ambito_extraido = self._pila.get()
+            cola_ambitos.put(ambito_extraido)
+        
+        ultima_funcion = ambito_extraido
+
+        while not cola_ambitos.empty():
+            self._pila.put(cola_ambitos.get())
+        
+        return ultima_funcion
+
+
+        
+        
+
