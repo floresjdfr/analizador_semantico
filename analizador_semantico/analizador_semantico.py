@@ -143,18 +143,18 @@ class AnalisadorSemantico:
         contador_parentesis = 0
 
         for i in range(0, len(linea)+1): #recorre la linea de tokens
-            if linea[i][1] is 'parentesis': 
+            if linea[i][1] == 'parentesis': 
                 if contador_parentesis < 1:
                     contador_parentesis += 1
                 else:#si el token vuelve a ser un parentesis significa que es el parentesis que cierra
                     lista_parametros += parametro_auxiliar #lo que este en parametro_auxiliar se agrega a la lista de parametros
                     break
             elif contador_parentesis > 0:
-                if linea[i][1] is 'coma': #si el token es una coma todo lo que este en el parametro_auxiliar se agrega a la lista de parametros
+                if linea[i][1] == 'coma': #si el token es una coma todo lo que este en el parametro_auxiliar se agrega a la lista de parametros
                     if len(parametro_auxiliar) > 0:
                         lista_parametros.append(parametro_auxiliar)
                         parametro_auxiliar = []
-                elif linea[i][1] is not 'coma': #si el token actual no es una coma, es parte del parametro (tipo, identificador, =, valor)
+                elif linea[i][1] != 'coma': #si el token actual no es una coma, es parte del parametro (tipo, identificador, =, valor)
                     parametro_auxiliar.append(linea[i][0]) #se agrega al parameto_auxiliar
         return lista_parametros
     
