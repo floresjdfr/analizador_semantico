@@ -26,7 +26,6 @@ class AnalisadorSemantico:
     def analizar(self):
         self.parse()
         tabla = self._parsing.obtenerTabla()
-        tabla.imprimir()
         self._analisis_semantico_declaraciones(tabla)
         self._analisis_semantico_identificadores(tabla)
         self._mostrar_errores()
@@ -139,23 +138,22 @@ class AnalisadorSemantico:
                             if not encontrado:
                                 print('Error')
                         '''
-                '''
+                
                 elif resultado == 'ASIGNACION_FUNCION':
                     tipos = {'string', 'int', 'float', 'void'}
                     parametros = []
-                    if tokens[0][0] in tipos:
-                        parametros = self._extraer_parametros(tokens)
-                        if tokens[3][0] in tabla.obtener_tabla():
-                            if tokens[0][0] == tabla.obtenerTabla()[tokens[3][1]]:
-                                continue
+                    if tokens['tokens'][0][0] in tipos:
+                        parametros = self._extraer_parametros(tokens['tokens'])
+
+                        for parametro in parametros:
+                            if not parametro in tabla.obtener_tabla().keys():
+                                salida = "Error - linea: {}. '{}' no esta declarado.".format(tokens['linea'], parametro)
+                                self.lista_errores.append(salida)    
                             else:
-                                salida = "Error - linea: {}. Asignacion de tipo '{}' incorrecta.".format(value['linea'], value['tipo'])
-                                self.lista_errores.append(salida)
-                        else:
-                            salida = "Error - linea: {}. '{}' no esta declarado.".format(tokens['linea'], tokens[3][1])
-                            self.lista_errores.append(salida)
+                                if tabla.obtener_tabla()[parametro]['ambito'] != 'global':
+                                    salida = "Error - linea: {}. '{}' no esta declarado.".format(tokens['linea'], parametro)
+                                    self.lista_errores.append(salida)            
                 
-                '''
     def _extraer_parametros(self, linea):
 
         '''
@@ -170,7 +168,7 @@ class AnalisadorSemantico:
                 if contador_parentesis < 1:
                     contador_parentesis += 1
                 else:#si el token vuelve a ser un parentesis significa que es el parentesis que cierra
-                    lista_parametros.append(parametro_auxiliar) #lo que este en parametro_auxiliar se agrega a la lista de parametros
+                    lista_parametros += parametro_auxiliar #lo que este en parametro_auxiliar se agrega a la lista de parametros
                     break
             elif contador_parentesis > 0:
                 if linea[i][1] is 'coma': #si el token es una coma todo lo que este en el parametro_auxiliar se agrega a la lista de parametros

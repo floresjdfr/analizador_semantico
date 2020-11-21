@@ -136,7 +136,6 @@ class Parsing():
         if tokens[0][0] in opciones_tipo:
             pass
     
-
     def _return(self, tokens, linea):
         if len(tokens) > 1:
             elemento_retornado =  tokens[1]

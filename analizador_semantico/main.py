@@ -3,7 +3,7 @@ from tokenizer import tokenize
 from analizador_semantico import AnalisadorSemantico
 
 if __name__ == '__main__':
-    analizador = AnalisadorSemantico('incorrecto.txt')
+    analizador = AnalisadorSemantico('correcto.txt')
     analizador.analizar()
 
     
